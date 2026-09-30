@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Minecraft Quiz</title>
+
+<style>
+
+body{
+    margin:0;
+    font-family:Arial, sans-serif;
+    background:linear-gradient(180deg,#4CAF50,#2E7D32);
+    color:white;
+}
+
+.container{
+    width:90%;
+    max-width:900px;
+    margin:30px auto;
+    background:#1e1e1e;
+    border-radius:20px;
+    padding:30px;
+    box-shadow:0 0 20px black;
+}
+
+h1{
+    text-align:center;
+    color:#55ff55;
+}
+
+.top{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:20px;
+}
+
+.progress{
+    width:100%;
+    height:20px;
+    background:#444;
+    border-radius:10px;
+    overflow:hidden;
+}
+
+.progress-bar{
+    height:100%;
+    width:0%;
+    background:#55ff55;
+}
+
+.dificultad{
+    margin-top:15px;
+    font-weight:bold;
+}
+
+.pregunta{
+    font-size:24px;
+    margin:30px 0;
+}
+
+.opcion{
+    display:block;
+    width:100%;
+    margin:10px 0;
+    padding:15px;
+    background:#333;
+    border:none;
+    color:white;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+.opcion:hover{
+    background:#555;
+}
+
+button{
+    background:#4CAF50;
+    color:white;
+    border:none;
+    padding:15px 30px;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:18px;
+    margin-top:20px;
+}
+
+button:hover{
+    background:#66BB6A;
+}
+
+.resultado{
+    text-align:center;
+    font-size:30px;
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>⛏ MINECRAFT QUIZ</h1>
+
+    <div class="top">
+        <div id="puntaje">Puntos: 0</div>
+        <div id="vidas">❤️❤️❤️</div>
+    </div>
+
+    <div class="progress">
+        <div class="progress-bar" id="barra"></div>
+    </div>
+
+    <div class="dificultad" id="dificultad"></div>
+
+    <div class="pregunta" id="pregunta"></div>
+
+    <div id="opciones"></div>
+
+    <button onclick="comprobar()">Comprobar</button>
+
+</div>
+
+<script>
+
+let preguntas = [
+
+    // FÁCIL
+    {
+        pregunta:"¿Qué criatura explota cuando se acerca al jugador?",
+        opciones:["Zombie","Creeper","Esqueleto","Araña"],
+        respuesta:"Creeper",
+        dificultad:"FÁCIL",
+        puntos:1
+    },
+
+    {
+        pregunta:"¿Qué herramienta se utiliza para picar piedra?",
+        opciones:["Pala","Pico","Hacha","Azada"],
+        respuesta:"Pico",
+        dificultad:"FÁCIL",
+        puntos:1
+    },
+
+    {
+        pregunta:"¿Qué animal da lana?",
+        opciones:["Cerdo","Vaca","Oveja","Pollo"],
+        respuesta:"Oveja",
+        dificultad:"FÁCIL",
+        puntos:1
+    },
+
+    {
+        pregunta:"¿A qué dimensión se llega mediante un portal de obsidiana?",
+        opciones:["End","Nether","Overworld","Aether"],
+        respuesta:"Nether",
+        dificultad:"MEDIA",
+        puntos:2
+    },
+
+    {
+        pregunta:"¿Qué criatura puede teletransportarse?",
+        opciones:["Zombie","Enderman","Ghast","Slime"],
+        respuesta:"Enderman",
+        dificultad:"MEDIA",
+        puntos:2
+    },
+
+    {
+        pregunta:"¿Qué objeto activa el portal del End?",
+        opciones:[
+            "Perla de Ender",
+            "Ojo de Ender",
+            "Diamante",
+            "Obsidiana"
+        ],
+        respuesta:"Ojo de Ender",
+        dificultad:"DIFÍCIL",
+        puntos:3
+    },
+
+    {
+        pregunta:"¿Qué jefe aparece usando arena de almas y cabezas de Wither?",
+        opciones:[
+            "Warden",
+            "Wither",
+            "Dragon",
+            "Ghast"
+        ],
+        respuesta:"Wither",
+        dificultad:"DIFÍCIL",
+        puntos:3
+    },
+
+    // MUY DIFÍCILES (ÚLTIMAS 3)
+
+    {
+        pregunta:"¿Qué objeto deja el Wither para crear una baliza?",
+        opciones:[
+            "Estrella del Nether",
+            "Perla de Ender",
+            "Cristal del End",
+            "Corazón del Mar"
+        ],
+        respuesta:"Estrella del Nether",
+        dificultad:"MUY DIFÍCIL",
+        puntos:5
+    },
+
+    {
+        pregunta:"¿Cuál es el nivel máximo de encantamiento de la mesa?",
+        opciones:[
+            "20",
+            "30",
+            "40",
+            "50"
+        ],
+        respuesta:"30",
+        dificultad:"MUY DIFÍCIL",
+        puntos:5
+    },
+
+    {
+        pregunta:"¿Qué materiales forman una baliza?",
+        opciones:[
+            "Vidrio, obsidiana y estrella del Nether",
+            "Diamante y vidrio",
+            "Hierro y obsidiana",
+            "Redstone y cristal"
+        ],
+        respuesta:"Vidrio, obsidiana y estrella del Nether",
+        dificultad:"MUY DIFÍCIL",
+        puntos:5
+    }
+
+];
+
+let actual = 0;
+let puntos = 0;
+let vidas = 3;
+let seleccion = "";
+
+function mostrarPregunta(){
+
+    let p = preguntas[actual];
+
+    document.getElementById("pregunta").innerText =
+        (actual+1) + ". " + p.pregunta;
+
+    document.getElementById("dificultad").innerText =
+        "Dificultad: " + p.dificultad +
+        " | +" + p.puntos + " puntos";
+
+    let html = "";
+
+    p.opciones.forEach(op=>{
+
+        html += `
+        <button class="opcion"
+        onclick="seleccion='${op}'">
+        ${op}
+        </button>
+        `;
+    });
+
+    document.getElementById("opciones").innerHTML = html;
+
+    let porcentaje =
+        ((actual+1)/preguntas.length)*100;
+
+    document.getElementById("barra")
+        .style.width = porcentaje + "%";
+}
+
+function comprobar(){
+
+    if(seleccion==""){
+        alert("Selecciona una respuesta");
+        return;
+    }
+
+    let p = preguntas[actual];
+
+    if(seleccion == p.respuesta){
+
+        puntos += p.puntos;
+
+        alert("✔ Correcto");
+
+    }else{
+
+        vidas--;
+
+        alert("❌ Incorrecto");
+
+    }
+
+    document.getElementById("puntaje")
+        .innerText = "Puntos: " + puntos;
+
+    document.getElementById("vidas")
+        .innerText = "❤️".repeat(vidas);
+
+    if(vidas <= 0){
+
+        terminar("GAME OVER");
+
+        return;
+    }
+
+    actual++;
+    seleccion="";
+
+    if(actual >= preguntas.length){
+
+        terminar("¡QUIZ COMPLETADO!");
+
+    }else{
+
+        mostrarPregunta();
+    }
+}
+
+function terminar(texto){
+
+    document.querySelector(".container").innerHTML=`
+        <div class="resultado">
+            <h1>${texto}</h1>
+            <h2>Puntos: ${puntos}</h2>
+            <button onclick="location.reload()">
+                Jugar otra vez
+            </button>
+        </div>
+    `;
+}
+
+mostrarPregunta();
+
+</script>
+
+</body>
+</html>
